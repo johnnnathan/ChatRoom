@@ -4,38 +4,52 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Client {
-    static Socket clientSocket;
-    static BufferedReader reader;
-    static PrintWriter writer;
+public class Client extends Socket{
+    Socket clientSocket;
+    String name;
+    BufferedReader reader;
+    PrintWriter writer;
     static boolean active = true;
-
     public static void main(String[] args) throws IOException {
-        clientSocket = new Socket("127.0.0.1", 8080);//create clientSocket connected to same address as server
-        reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        writer = new PrintWriter(clientSocket.getOutputStream(), true);
-
-        Thread sendMessage = new Thread(() -> {
+        Socket clientSocket = new Socket("127.0.0.1", 8080);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(),true);
+        Thread sendMessage = new Thread( ()-> {
+            String msg;
             Scanner scanner = new Scanner(System.in);
+
             while (active) {
-                String msg = scanner.nextLine();
+
+                msg = scanner.nextLine();
                 writer.println(msg);
+
+
             }
+
         });
         sendMessage.start();
 
-        Thread receiveMessage = new Thread(() -> {
-            try {
-                String msg;
-                while ((msg = reader.readLine()) != null) {
-                    System.out.println("Server: " + msg);
+        Thread receiveMessage = new Thread(() ->{
+            String msg;
+
+
+            while (active) {
+                try {
+                    msg = reader.readLine();
+                    System.out.println(msg);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-                System.out.println("End of Conversation");
+            }
+
+            try {
                 reader.close();
                 clientSocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
+
+
         });
         receiveMessage.start();
     }

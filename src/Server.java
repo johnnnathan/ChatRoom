@@ -6,23 +6,26 @@ import java.net.Socket;
 
 public class Server {
     public static void main(String[] args) throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(8080)) {
-            System.out.println("Server started. Waiting for clients...");
-            while (true) {
-                try (Socket clientSocket = serverSocket.accept();
-                     BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                     PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true)) {
-                    System.out.println("Client connected: " + clientSocket.getInetAddress());
+        ServerSocket server = new ServerSocket(8080);
+        System.out.println("Started, waiting for clients...");
+        while (true){
+            try(Socket clientSocket = server.accept();){
+                System.out.println("Client connected");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
+                String msg;
+                while (true){
+                    msg = reader.readLine();
+                    System.out.println(msg);
 
-                    String msg;
-                    while ((msg = reader.readLine()) != null) {
-                        System.out.println("Client: " + msg);
-                        writer.println("Server received: " + msg);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
-            }
+
+
         }
+
+
     }
 }
