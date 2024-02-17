@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Client extends Socket{
+public class Client{
     Socket clientSocket;
     String name;
     BufferedReader reader;
