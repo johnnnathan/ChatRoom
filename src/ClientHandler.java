@@ -1,5 +1,6 @@
 package src;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
@@ -7,6 +8,9 @@ import java.util.Scanner;
 public class ClientHandler implements Runnable{
     private Socket socket;
     private String name;
+    private BufferedReader reader;
+    private PrintWriter writer;
+    private Scanner scanner;
     public static String currentName = null;
     public static boolean acceptUserFlagafterLogin = false;
 
@@ -17,23 +21,34 @@ public class ClientHandler implements Runnable{
     public void run() {
         try {
 
-            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            Scanner scanner = new Scanner(System.in);
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);//write to server
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));//read from server
+            Scanner scanner = new Scanner(System.in);//read from user
+
+            this.writer = writer;
+            this.reader = reader;
+            this.scanner = scanner;
+
             Frame.LoginPage();
             while(!acceptUserFlagafterLogin){
                 Thread.sleep(1000);
             }
+            acceptUserFlagafterLogin = false;
             this.name = currentName;
+            Server.UserList.add(this);
             currentName = null;
 
             String msg;
-            System.out.println("Your name is: " + this.name + "! Welcome to the server.");
-            writer.println("Your name is: " + this.name + "! Welcome to the server.");
+            writer.println("Your name is: " + this.name + "! Welcome to the server.");//write to user terminal
+
             while ((msg = reader.readLine())!= null){
                 writer.println("You" + ": " + msg);
-                System.out.println(this.name + ": " + msg);
-                
+                Text text = new Text(this.getName(),msg, this);
+                if (text.getReceiverClient() == null){
+                    JOptionPane.showMessageDialog(null, "User is not online, try again some other time");
+                }else {
+                    text.sendMessage(text);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -43,5 +58,18 @@ public class ClientHandler implements Runnable{
 
     }
 
+    public Scanner getScanner() {
+        return scanner;
+    }
 
+    public PrintWriter getWriter() {
+        return writer;
+    }
+    public BufferedReader getReader(){
+        return reader;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
