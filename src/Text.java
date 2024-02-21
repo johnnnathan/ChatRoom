@@ -3,6 +3,7 @@ package src;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -75,10 +76,11 @@ public class Text {
     }
 
 
-    public void sendMessage(Text textObject){
+    public void sendMessage(Text textObject) throws IOException {
         String msg = textObject.getText();
         String msgPruned = msg.replace("@"+textObject.getReceiverName() , "");
         textObject.getReceiverClient().getWriter().println(textObject.getSenderName() + ": " + msgPruned);
+        Server.SaveToChat(textObject, msgPruned);
     }
 
     public String getReceiverName() {
@@ -100,4 +102,6 @@ public class Text {
     public ClientHandler getSenderClient() {
         return senderClient;
     }
+
+    public String getDatetime() {return datetime;}
 }

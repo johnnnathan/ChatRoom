@@ -19,4 +19,16 @@ public class Server {
             clientHandler.start();
         }
     }
+
+    public static void SaveToChat(Text textObject, String message) throws IOException {
+
+
+        File file = null;
+        if (textObject.getSenderName().compareTo(textObject.getReceiverName())<0){file = new File(textObject.getSenderName()+textObject.getReceiverName());}
+        else if (textObject.getSenderName().compareTo(textObject.getReceiverName())>0) { file = new File(textObject.getReceiverName()+textObject.getSenderName());}
+        else {System.out.println("Error. Try again.");return;}
+        FileWriter writer = new FileWriter(file, true);
+        writer.write(textObject.getDatetime() + " " + textObject.getSenderName() + ": " + message + "\n");
+        writer.close();
+    }
 }
